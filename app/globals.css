@@ -1,0 +1,207 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600;1,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-yellow: #FFC800;
+  --primary-navy: #1A233A;
+  --secondary-orange: #FF5A1F;
+  --bg-warm: #FAF6EE;
+  --bg-surface: #FFFFFF;
+  --text-main: #121826;
+  --font-family: 'Poppins', var(--font-poppins), system-ui, -apple-system, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body, button, input, select, textarea, a, p, span, h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', var(--font-poppins), system-ui, -apple-system, sans-serif !important;
+}
+
+body {
+  color: var(--text-main);
+  background-color: var(--bg-warm);
+  overflow-x: hidden;
+}
+
+/* Warm Hero Overlay - Sunlit Yercaud Vibe with zero dull green */
+.bg-hero-overlay-warm {
+  background: linear-gradient(180deg, rgba(26, 35, 58, 0.45) 0%, rgba(26, 35, 58, 0.85) 75%, rgba(26, 35, 58, 0.98) 100%);
+}
+
+/* Warm Mesh Background - Sunny Yellow & Terracotta Accents */
+.bg-warm-mesh {
+  background-color: #FAF6EE;
+  background-image: 
+    radial-gradient(at 10% 10%, rgba(255, 200, 0, 0.18) 0px, transparent 50%),
+    radial-gradient(at 90% 20%, rgba(255, 90, 31, 0.12) 0px, transparent 50%),
+    radial-gradient(at 50% 80%, rgba(255, 200, 0, 0.14) 0px, transparent 50%);
+}
+
+.bg-navy-mesh {
+  background-color: #1A233A;
+  background-image: 
+    radial-gradient(at 15% 15%, rgba(255, 200, 0, 0.15) 0px, transparent 40%),
+    radial-gradient(at 85% 30%, rgba(255, 90, 31, 0.15) 0px, transparent 45%);
+}
+
+/* UNIFORM BADGE: Consistent pill badge across all cards */
+.badge-pill-yellow {
+  background-color: #FFC800 !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  font-weight: 800 !important;
+  font-size: 0.75rem !important;
+  line-height: 1rem !important;
+  padding: 0.25rem 0.75rem !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  letter-spacing: 0.025em !important;
+  box-shadow: 2px 2px 0px #000000 !important;
+  white-space: nowrap !important;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* SOLID TRENDY BUTTONS - No Glassmorphism / No Neomorphism */
+/* Primary Yellow Button with Black Text (User's recommended styling) */
+.btn-solid-yellow {
+  background-color: #FFC800 !important;
+  color: #000000 !important;
+  font-weight: 800 !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 3px 3px 0px #000000 !important;
+  transition: all 0.15s ease-in-out !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  gap: 0.5rem !important;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  cursor: pointer;
+}
+
+.btn-solid-yellow svg {
+  flex-shrink: 0 !important;
+}
+
+.btn-solid-yellow:hover {
+  background-color: #FFE14D !important;
+  transform: translate(-1px, -1px) !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+}
+
+.btn-solid-yellow:active {
+  transform: translate(1px, 1px) !important;
+  box-shadow: 1px 1px 0px #000000 !important;
+}
+
+/* Official WhatsApp Button */
+.btn-solid-whatsapp {
+  background-color: #25D366 !important;
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 3px 3px 0px #000000 !important;
+  transition: all 0.15s ease-in-out !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  gap: 0.5rem !important;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  cursor: pointer;
+}
+
+.btn-solid-whatsapp svg {
+  flex-shrink: 0 !important;
+}
+
+.btn-solid-whatsapp:hover {
+  background-color: #20ba59 !important;
+  transform: translate(-1px, -1px) !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+}
+
+.btn-solid-whatsapp:active {
+  transform: translate(1px, 1px) !important;
+  box-shadow: 1px 1px 0px #000000 !important;
+}
+
+/* Navy Accent Button */
+.btn-solid-navy {
+  background-color: #1A233A !important;
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 3px 3px 0px #000000 !important;
+  transition: all 0.15s ease-in-out !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+}
+
+.btn-solid-navy:hover {
+  background-color: #273659 !important;
+  color: #FFC800 !important;
+  transform: translate(-1px, -1px) !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+}
+
+/* Card interactions */
+.trendy-card {
+  background-color: #FFFFFF;
+  border: 2px solid #1A233A;
+  border-radius: 1.5rem;
+  box-shadow: 4px 4px 0px #1A233A;
+  transition: all 0.2s ease-in-out;
+}
+
+.trendy-card:hover {
+  border-color: #000000;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #FFC800;
+}
+
+.image-zoom-box {
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 2px solid #1A233A;
+}
+
+.image-zoom-box img {
+  transition: transform 0.5s ease;
+}
+
+.trendy-card:hover .image-zoom-box img {
+  transform: scale(1.05);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF6EE;
+}
+::-webkit-scrollbar-thumb {
+  background: #FFC800;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #EBB500;
+}
+
+.pb-safe-area {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
