@@ -16,6 +16,7 @@ import {
   RefreshCw,
   LogOut,
   Lock,
+  Mail,
   Layers,
   Sparkles,
   ArrowRight,
@@ -26,14 +27,15 @@ import {
 import WhatsAppIcon from '@/components/WhatsAppIcon';
 
 export default function AdminDashboardPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authMethod, setAuthMethod] = useState<'pin' | 'firebase'>('pin');
-  const [pin, setPin] = useState('');
+  // Pure Firebase Authentication States
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [authChecking, setAuthChecking] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState('');
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
+  // Calls Data States
   const [calls, setCalls] = useState<CallLog[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedAdminFilter, setSelectedAdminFilter] = useState<'all' | 'admin1' | 'admin2'>('all');
@@ -43,25 +45,19 @@ export default function AdminDashboardPage() {
   const [noteEditId, setNoteEditId] = useState<string | null>(null);
   const [noteText, setNoteText] = useState('');
 
-  // Check existing session
+  // Listen directly to Firebase Auth state
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const session = sessionStorage.getItem('namma_admin_auth');
-      if (session === 'true') {
-        setIsAuthenticated(true);
-      }
+    if (!auth) {
+      setAuthChecking(false);
+      return;
     }
 
-    if (auth) {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (user) {
-          setCurrentUser(user);
-          setIsAuthenticated(true);
-          sessionStorage.setItem('namma_admin_auth', 'true');
-        }
-      });
-      return () => unsubscribe();
-    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      setAuthChecking(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   // Fetch calls function
@@ -80,9 +76,9 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Real-time Firestore sync if connected
+  // Real-time Firestore sync when authenticated
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!currentUser) return;
 
     fetchCalls();
 
@@ -122,42 +118,45 @@ export default function AdminDashboardPage() {
 
     const interval = setInterval(fetchCalls, 15000);
     return () => clearInterval(interval);
-  }, [isAuthenticated]);
+  }, [currentUser]);
 
-  // Handle Authentication
-  const handlePinLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pin === '7695' || pin === '8220' || pin === 'nammayercaud2026' || pin === '1234') {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('namma_admin_auth', 'true');
-      setAuthError('');
-    } else {
-      setAuthError('Invalid Partner PIN. Enter 7695 (Admin 1), 8220 (Admin 2), or master PIN.');
-    }
-  };
-
+  // Handle Firebase Login
   const handleFirebaseLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!auth) {
-      setAuthError('Firebase Auth is not configured in environment variables yet. Please use Partner PIN.');
+      setAuthError('Firebase Authentication is initializing. Please verify credentials.');
       return;
     }
+
+    setAuthLoading(true);
+    setAuthError('');
+
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      setIsAuthenticated(true);
-      sessionStorage.setItem('namma_admin_auth', 'true');
-      setAuthError('');
+      await signInWithEmailAndPassword(auth, email.trim(), password);
     } catch (err: any) {
-      setAuthError(err.message || 'Authentication failed');
+      console.error('Firebase Auth error:', err);
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+        setAuthError('Invalid email or password. Please verify your Firebase login credentials.');
+      } else if (err.code === 'auth/too-many-requests') {
+        setAuthError('Too many unsuccessful login attempts. Please try again later.');
+      } else {
+        setAuthError(err.message || 'Firebase login failed');
+      }
+    } finally {
+      setAuthLoading(false);
     }
   };
 
-  const handleLogout = () => {
-    if (auth && currentUser) {
-      signOut(auth);
+  // Handle Logout
+  const handleLogout = async () => {
+    if (auth) {
+      try {
+        await signOut(auth);
+      } catch (err) {
+        console.error('Error signing out:', err);
+      }
     }
-    sessionStorage.removeItem('namma_admin_auth');
-    setIsAuthenticated(false);
+    setCurrentUser(null);
   };
 
   // Status and Notes update handler
@@ -272,9 +271,25 @@ export default function AdminDashboardPage() {
   });
 
   // -------------------------------------------------------------
-  // LOGIN SCREEN
+  // LOADING STATE
   // -------------------------------------------------------------
-  if (!isAuthenticated) {
+  if (authChecking) {
+    return (
+      <div className="min-h-screen bg-[#121826] flex items-center justify-center p-4">
+        <div className="text-center text-white space-y-3">
+          <div className="w-10 h-10 border-4 border-brand-yellow border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-xs font-black uppercase tracking-wider text-neutral-300">
+            Checking Firebase Authentication...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------
+  // FIREBASE LOGIN SCREEN
+  // -------------------------------------------------------------
+  if (!currentUser) {
     return (
       <div className="min-h-screen bg-[#121826] flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl border-4 border-black">
@@ -290,102 +305,78 @@ export default function AdminDashboardPage() {
               />
             </div>
             <h1 className="text-2xl font-black text-black uppercase tracking-tight">
-              Owner Transparency Portal
+              Partner Admin Portal
             </h1>
             <p className="text-xs text-neutral-600 font-semibold mt-1">
-              Real-Time Call Logs, Lead Tracking &amp; Partner Routing
+              Sign in with your Firebase Admin Account
             </p>
           </div>
 
-          <div className="flex border-2 border-black rounded-xl p-1 bg-neutral-100 mb-6">
-            <button
-              onClick={() => { setAuthMethod('pin'); setAuthError(''); }}
-              className={`flex-1 py-2 text-xs font-black rounded-lg transition-all ${
-                authMethod === 'pin' ? 'bg-brand-yellow text-black shadow-[2px_2px_0px_#000000]' : 'text-neutral-600'
-              }`}
-            >
-              Partner PIN Access
-            </button>
-            <button
-              onClick={() => { setAuthMethod('firebase'); setAuthError(''); }}
-              className={`flex-1 py-2 text-xs font-black rounded-lg transition-all ${
-                authMethod === 'firebase' ? 'bg-brand-yellow text-black shadow-[2px_2px_0px_#000000]' : 'text-neutral-600'
-              }`}
-            >
-              Firebase Auth
-            </button>
-          </div>
-
           {authError && (
-            <div className="mb-4 p-3 bg-red-100 border-2 border-red-500 rounded-xl text-xs font-bold text-red-800">
-              {authError}
+            <div className="mb-5 p-3.5 bg-red-100 border-2 border-red-500 rounded-2xl text-xs font-bold text-red-800 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+              <span>{authError}</span>
             </div>
           )}
 
-          {authMethod === 'pin' ? (
-            <form onSubmit={handlePinLogin} className="space-y-4">
-              <div>
-                <label className="text-xs font-black uppercase text-neutral-800 block mb-1">
-                  Enter Partner Security PIN
-                </label>
-                <div className="relative">
-                  <input
-                    type="password"
-                    value={pin}
-                    onChange={(e) => setPin(e.target.value)}
-                    placeholder="Enter PIN (e.g., 7695 or 8220)"
-                    className="w-full px-4 py-3 text-lg font-black bg-neutral-50 border-2 border-black rounded-xl shadow-[3px_3px_0px_#000000] focus:outline-none focus:ring-2 focus:ring-brand-yellow tracking-widest text-center"
-                    autoFocus
-                  />
-                  <Lock className="w-4 h-4 text-neutral-400 absolute right-3 top-4" />
-                </div>
-                <p className="text-[11px] text-neutral-500 font-bold mt-1 text-center">
-                  Admin 1 PIN: <strong>7695</strong> | Admin 2 PIN: <strong>8220</strong>
-                </p>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-3.5 btn-solid-yellow rounded-xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-[3px_3px_0px_#000000]"
-              >
-                <span>Access Partner Dashboard</span>
-                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleFirebaseLogin} className="space-y-4">
-              <div>
-                <label className="text-xs font-black uppercase text-neutral-800 block mb-1">Email</label>
+          <form onSubmit={handleFirebaseLogin} className="space-y-4">
+            <div>
+              <label className="text-xs font-black uppercase text-neutral-800 block mb-1">
+                Admin Email
+              </label>
+              <div className="relative">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@nammayercaud.com"
-                  className="w-full px-4 py-2.5 text-sm font-bold bg-neutral-50 border-2 border-black rounded-xl"
+                  className="w-full pl-10 pr-4 py-3 text-sm font-bold bg-neutral-50 border-2 border-black rounded-2xl shadow-[2px_2px_0px_#000000] focus:outline-none focus:ring-2 focus:ring-brand-yellow"
                   required
+                  autoFocus
                 />
+                <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
               </div>
-              <div>
-                <label className="text-xs font-black uppercase text-neutral-800 block mb-1">Password</label>
+            </div>
+
+            <div>
+              <label className="text-xs font-black uppercase text-neutral-800 block mb-1">
+                Admin Password
+              </label>
+              <div className="relative">
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-2.5 text-sm font-bold bg-neutral-50 border-2 border-black rounded-xl"
+                  className="w-full pl-10 pr-4 py-3 text-sm font-bold bg-neutral-50 border-2 border-black rounded-2xl shadow-[2px_2px_0px_#000000] focus:outline-none focus:ring-2 focus:ring-brand-yellow"
                   required
                 />
+                <Lock className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
               </div>
+            </div>
 
-              <button
-                type="submit"
-                className="w-full py-3.5 btn-solid-yellow rounded-xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-[3px_3px_0px_#000000]"
-              >
-                <span>Login with Firebase</span>
-                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-              </button>
-            </form>
-          )}
+            <button
+              type="submit"
+              disabled={authLoading}
+              className="w-full py-3.5 btn-solid-yellow rounded-2xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-[3px_3px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px] transition-all hover:scale-[1.01]"
+            >
+              {authLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                  <span>Verifying Credentials...</span>
+                </>
+              ) : (
+                <>
+                  <span>Sign In with Firebase</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </>
+              )}
+            </button>
+          </form>
+
+          <p className="text-[11px] text-neutral-500 font-semibold text-center mt-6">
+            🔒 Protected by Firebase Authentication &bull; Namma Yercaud Partner Portal
+          </p>
 
         </div>
       </div>
@@ -393,7 +384,7 @@ export default function AdminDashboardPage() {
   }
 
   // -------------------------------------------------------------
-  // AUTHENTICATED DASHBOARD
+  // AUTHENTICATED SHARED DASHBOARD
   // -------------------------------------------------------------
   return (
     <div className="min-h-screen bg-[#F4F6F9] text-[#121826] pb-24">
@@ -419,7 +410,7 @@ export default function AdminDashboardPage() {
                 </h1>
                 <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Sensors Active
+                  Firebase Auth Connected
                 </span>
               </div>
               <p className="text-[11px] text-neutral-300 font-medium">
@@ -451,10 +442,10 @@ export default function AdminDashboardPage() {
             <button
               onClick={handleLogout}
               className="p-2 sm:px-3 sm:py-2 bg-red-600 hover:bg-red-700 text-white border-2 border-black rounded-xl text-xs font-black flex items-center gap-1.5 shadow-[2px_2px_0px_#000000] transition-all"
-              title="Log out"
+              title={`Logged in as ${currentUser.email}. Click to log out.`}
             >
               <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Exit</span>
+              <span className="hidden sm:inline">Sign Out</span>
             </button>
           </div>
 
@@ -467,7 +458,7 @@ export default function AdminDashboardPage() {
         {/* Metric Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
           
-          {/* Total Calls Today */}
+          {/* Total Inquiries Today */}
           <div className="bg-white p-5 rounded-3xl border-3 border-black shadow-[4px_4px_0px_#000000]">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black uppercase tracking-wider text-neutral-500">
@@ -526,7 +517,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          {/* Pending Callbacks */}
+          {/* Pending Follow-Ups */}
           <div className="bg-white p-5 rounded-3xl border-3 border-black shadow-[4px_4px_0px_#000000]">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black uppercase tracking-wider text-red-600">
