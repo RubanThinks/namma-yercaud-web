@@ -54,7 +54,10 @@ export default function Footer() {
                 <span className="text-[11px] text-neutral-300 uppercase font-bold block">Primary Call Number</span>
                 <a
                   href={CONTACT.phoneHref}
-                  className="text-base font-extrabold text-brand-yellow hover:underline flex items-center gap-1.5 mt-0.5"
+                  data-call-trigger="true"
+                  data-service="Footer Contact"
+                  data-title="Footer Primary Phone Link"
+                  className="text-base font-extrabold text-brand-yellow hover:underline flex items-center gap-1.5 mt-0.5 cursor-pointer"
                 >
                   <Phone className="w-4 h-4" />
                   <span>{CONTACT.phoneDisplay}</span>
@@ -90,7 +93,10 @@ export default function Footer() {
             <div className="pt-2 flex flex-col gap-2.5">
               <a
                 href={CONTACT.phoneHref}
-                className="w-full py-2.5 rounded-xl btn-solid-yellow text-xs font-black flex items-center justify-center gap-2"
+                data-call-trigger="true"
+                data-service="Footer Contact"
+                data-title="Footer Call Button"
+                className="w-full py-2.5 rounded-xl btn-solid-yellow text-xs font-black flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Phone className="w-4 h-4 stroke-[2.5]" />
                 <span>Call {CONTACT.phoneDisplay}</span>
@@ -116,6 +122,10 @@ export default function Footer() {
           </div>
           <div className="flex items-center gap-4">
             <span>Shevaroy Hills, Salem, Tamil Nadu</span>
+            <span>&bull;</span>
+            <Link href="/admin" className="text-neutral-400 hover:text-brand-yellow font-bold transition-colors">
+              🔒 Partner Portal
+            </Link>
           </div>
         </div>
 

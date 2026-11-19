@@ -81,7 +81,11 @@ export default function FoodPage() {
             <div className="p-6 pt-0 flex items-center gap-2">
               <a
                 href={CONTACT.phoneHref}
-                className="flex-1 py-3 text-center rounded-xl btn-solid-yellow text-xs font-black flex items-center justify-center gap-1.5"
+                data-call-trigger="true"
+                data-service="Food Delivery & Kitchen"
+                data-title={item.title}
+                data-admin="admin1"
+                className="flex-1 py-3 text-center rounded-xl btn-solid-yellow text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Phone className="w-3.5 h-3.5 stroke-[2.5]" />
                 <span>Call Order</span>

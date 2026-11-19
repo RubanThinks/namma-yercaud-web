@@ -90,7 +90,10 @@ export default function HomePage() {
             {/* Primary Call - Solid Yellow with Black Text */}
             <a
               href={CONTACT.phoneHref}
-              className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-5 rounded-2xl btn-solid-yellow text-base font-black shadow-xl"
+              data-call-trigger="true"
+              data-service="General Concierge"
+              data-title="Homepage Hero Direct Call Button"
+              className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-5 rounded-2xl btn-solid-yellow text-base font-black shadow-xl cursor-pointer"
             >
               <div className="w-10 h-10 rounded-xl bg-black text-brand-yellow flex items-center justify-center">
                 <Phone className="w-5 h-5 stroke-[2.5]" />
@@ -664,7 +667,10 @@ export default function HomePage() {
             
             <a
               href={CONTACT.phoneHref}
-              className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-5 rounded-2xl btn-solid-yellow text-base font-black shadow-xl"
+              data-call-trigger="true"
+              data-service="General Concierge"
+              data-title="Homepage Bottom Call Banner"
+              className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-5 rounded-2xl btn-solid-yellow text-base font-black shadow-xl cursor-pointer"
             >
               <Phone className="w-5 h-5 stroke-[2.5]" />
               <span>Call Now: {CONTACT.phoneDisplay}</span>

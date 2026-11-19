@@ -10,10 +10,13 @@ export default function FloatingMobileBar() {
     <div className="fixed bottom-0 left-0 w-full z-40 sm:hidden bg-[#1A233A] border-t-2 border-[#2A3756] px-3 py-2.5 shadow-2xl pb-safe-area">
       <div className="flex items-center gap-2 max-w-md mx-auto">
         
-        {/* Direct Call Button - Solid Yellow with Black Text */}
+        {/* Direct Call Button - Intercepted with Priority Call Modal */}
         <a
           href={CONTACT.phoneHref}
-          className="flex-1 py-3 px-3 rounded-xl btn-solid-yellow text-xs font-black flex items-center justify-center gap-2 uppercase tracking-wide"
+          data-call-trigger="true"
+          data-service="General Concierge"
+          data-title="Sticky Mobile Call Bar"
+          className="flex-1 py-3 px-3 rounded-xl btn-solid-yellow text-xs font-black flex items-center justify-center gap-2 uppercase tracking-wide cursor-pointer"
         >
           <Phone className="w-4 h-4 stroke-[2.5]" />
           <span>Call Now</span>

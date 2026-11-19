@@ -84,7 +84,11 @@ export default function RidesPage() {
               <div className="p-6 pt-0 flex items-center gap-2">
                 <a
                   href={CONTACT.phoneHref}
-                  className="flex-1 py-3 text-center rounded-xl btn-solid-yellow text-xs font-black flex items-center justify-center gap-1.5"
+                  data-call-trigger="true"
+                  data-service="Rides & Jeep Safari"
+                  data-title={jeep.name}
+                  data-admin="admin2"
+                  className="flex-1 py-3 text-center rounded-xl btn-solid-yellow text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Phone className="w-4 h-4 stroke-[2.5]" />
                   <span>Call to Book</span>
@@ -131,14 +135,25 @@ export default function RidesPage() {
                 <div>✓ 20 Hairpin scenic stops on request</div>
               </div>
             </div>
-            <div className="mt-6 pt-4 border-t-2 border-neutral-200">
+            <div className="mt-6 pt-4 border-t-2 border-neutral-200 flex items-center gap-2">
+              <a
+                href={CONTACT.phoneHref}
+                data-call-trigger="true"
+                data-service="Rides & Cabs"
+                data-title="Salem Junction to Yercaud Cab"
+                data-admin="admin2"
+                className="flex-1 py-2.5 rounded-xl btn-solid-yellow text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer text-center"
+              >
+                <Phone className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>Call to Book</span>
+              </a>
               <a
                 href={getWhatsAppUrl("Hi Namma Yercaud, I need a cab from Salem Railway Station to Yercaud.")}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-2.5 rounded-xl btn-solid-yellow text-xs font-black flex items-center justify-center gap-1.5"
+                className="flex-1 py-2.5 rounded-xl btn-solid-whatsapp text-xs font-black flex items-center justify-center gap-1.5 text-center"
               >
-                <span>Book Station Cab</span>
+                <span>WhatsApp</span>
               </a>
             </div>
           </div>

@@ -104,7 +104,11 @@ export default function StaysPage() {
               <div className="mt-8 pt-5 border-t-2 border-neutral-200 flex items-center gap-3">
                 <a
                   href={CONTACT.phoneHref}
-                  className="flex-1 py-3 text-center rounded-xl btn-solid-yellow text-xs font-black flex items-center justify-center gap-1.5"
+                  data-call-trigger="true"
+                  data-service="Stays & Cottages"
+                  data-title={stay.name}
+                  data-admin="admin1"
+                  className="flex-1 py-3 text-center rounded-xl btn-solid-yellow text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Phone className="w-4 h-4 stroke-[2.5]" />
                   <span>Call to Book</span>

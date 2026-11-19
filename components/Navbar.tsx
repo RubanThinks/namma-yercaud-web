@@ -69,7 +69,10 @@ export default function Navbar() {
             {/* Direct Call - Solid Yellow with Black Text */}
             <a
               href={CONTACT.phoneHref}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl btn-solid-yellow text-sm font-black"
+              data-call-trigger="true"
+              data-service="Header Navigation"
+              data-title="Navbar Desktop Direct Call"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl btn-solid-yellow text-sm font-black cursor-pointer"
             >
               <Phone className="w-4 h-4 stroke-[2.5]" />
               <span>{CONTACT.phoneDisplay}</span>
@@ -91,7 +94,10 @@ export default function Navbar() {
           <div className="flex items-center gap-2 xl:hidden">
             <a
               href={CONTACT.phoneHref}
-              className="w-10 h-10 rounded-xl btn-solid-yellow flex items-center justify-center font-bold"
+              data-call-trigger="true"
+              data-service="Header Navigation"
+              data-title="Navbar Mobile Header Call Icon"
+              className="w-10 h-10 rounded-xl btn-solid-yellow flex items-center justify-center font-bold cursor-pointer"
               aria-label="Call Now"
             >
               <Phone className="w-5 h-5 stroke-[2.5]" />
@@ -167,7 +173,10 @@ export default function Navbar() {
               
               <a
                 href={CONTACT.phoneHref}
-                className="w-full py-3 rounded-xl btn-solid-yellow text-sm font-black flex items-center justify-center gap-2"
+                data-call-trigger="true"
+                data-service="Header Navigation"
+                data-title="Navbar Mobile Drawer Call"
+                className="w-full py-3 rounded-xl btn-solid-yellow text-sm font-black flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Phone className="w-4 h-4 stroke-[2.5]" />
                 <span>Call {CONTACT.phoneDisplay}</span>

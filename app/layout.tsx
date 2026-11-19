@@ -1,10 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Poppins } from 'next/font/google';
 import './globals.css';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import FloatingMobileBar from '@/components/FloatingMobileBar';
-import FloatingWhatsApp from '@/components/FloatingWhatsApp';
+import LayoutShell from '@/components/LayoutShell';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -155,12 +152,8 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="bg-[#FAF6EE] text-[#121826] font-sans antialiased min-h-screen flex flex-col pt-20 pb-20 sm:pb-0">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <FloatingMobileBar />
-        <FloatingWhatsApp />
+      <body className="bg-[#FAF6EE] text-[#121826] font-sans antialiased min-h-screen">
+        <LayoutShell>{children}</LayoutShell>
       </body>
     </html>
   );
