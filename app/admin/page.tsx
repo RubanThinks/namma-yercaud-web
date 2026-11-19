@@ -9,27 +9,23 @@ import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import {
   Phone,
   PhoneCall,
-  Calendar,
   Clock,
-  CheckCircle2,
-  AlertCircle,
   Search,
   Filter,
   Download,
   RefreshCw,
   LogOut,
   Lock,
-  UserCheck,
-  Shield,
   Layers,
   Sparkles,
   ArrowRight,
   TrendingUp,
+  AlertCircle,
+  CheckCircle2,
 } from 'lucide-react';
 import WhatsAppIcon from '@/components/WhatsAppIcon';
 
 export default function AdminDashboardPage() {
-  // Authentication states
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authMethod, setAuthMethod] = useState<'pin' | 'firebase'>('pin');
   const [pin, setPin] = useState('');
@@ -38,7 +34,6 @@ export default function AdminDashboardPage() {
   const [authError, setAuthError] = useState('');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  // Calls data states
   const [calls, setCalls] = useState<CallLog[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedAdminFilter, setSelectedAdminFilter] = useState<'all' | 'admin1' | 'admin2'>('all');
@@ -107,6 +102,7 @@ export default function AdminDashboardPage() {
               assignedAdmin: d.assignedAdmin,
               adminName: d.adminName,
               destinationPhone: d.destinationPhone,
+              actionType: d.actionType || 'Direct Call',
               pageUrl: d.pageUrl,
               timestamp: d.timestamp || new Date().toISOString(),
               dateString: d.dateString || new Date().toISOString().split('T')[0],
@@ -124,21 +120,19 @@ export default function AdminDashboardPage() {
       }
     }
 
-    // Auto-refresh every 20 seconds
-    const interval = setInterval(fetchCalls, 20000);
+    const interval = setInterval(fetchCalls, 15000);
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
   // Handle Authentication
   const handlePinLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Master partner PINs (8220, 7695, or nammayercaud2026)
-    if (pin === '8220' || pin === '7695' || pin === 'nammayercaud2026' || pin === '1234') {
+    if (pin === '7695' || pin === '8220' || pin === 'nammayercaud2026' || pin === '1234') {
       setIsAuthenticated(true);
       sessionStorage.setItem('namma_admin_auth', 'true');
       setAuthError('');
     } else {
-      setAuthError('Invalid Partner PIN. Enter 8220, 7695, or master password.');
+      setAuthError('Invalid Partner PIN. Enter 7695 (Admin 1), 8220 (Admin 2), or master PIN.');
     }
   };
 
@@ -168,7 +162,6 @@ export default function AdminDashboardPage() {
 
   // Status and Notes update handler
   const handleUpdateStatus = async (callId: string, newStatus: CallLog['status']) => {
-    // Optimistic update
     setCalls((prev) =>
       prev.map((c) => (c.id === callId ? { ...c, status: newStatus } : c))
     );
@@ -206,10 +199,11 @@ export default function AdminDashboardPage() {
     const headers = [
       'Call ID',
       'Customer Phone',
-      'Assigned Admin',
+      'Action Taken',
+      'Assigned Partner',
       'Routed Phone',
       'Service Category',
-      'Clicked Source Card',
+      'Clicked Card',
       'Predicted Purpose',
       'Page URL',
       'Date & Time',
@@ -220,7 +214,8 @@ export default function AdminDashboardPage() {
     const rows = filteredCalls.map((c) => [
       `"${c.id}"`,
       `"${c.customerPhone}"`,
-      `"${c.assignedAdmin === 'admin1' ? 'Admin 1 (Stays)' : 'Admin 2 (Rides)'}"`,
+      `"${c.actionType || 'Direct Call'}"`,
+      `"${c.assignedAdmin === 'admin1' ? 'Admin 1 (76958 50762)' : 'Admin 2 (82203 22008)'}"`,
       `"${c.destinationPhone}"`,
       `"${c.serviceCategory}"`,
       `"${c.cardTitle.replace(/"/g, '""')}"`,
@@ -249,25 +244,23 @@ export default function AdminDashboardPage() {
     totalToday: todayCalls.length,
     admin1Today: todayCalls.filter((c) => c.assignedAdmin === 'admin1').length,
     admin2Today: todayCalls.filter((c) => c.assignedAdmin === 'admin2').length,
+    directCallsToday: todayCalls.filter((c) => c.actionType !== 'Callback Request').length,
+    callbacksToday: todayCalls.filter((c) => c.actionType === 'Callback Request').length,
     pendingToday: todayCalls.filter((c) => c.status === 'New').length,
     totalAllTime: calls.length,
   };
 
-  // Filtering calls list
+  // Filtered list
   const filteredCalls = calls.filter((c) => {
-    // Admin filter
     if (selectedAdminFilter !== 'all' && c.assignedAdmin !== selectedAdminFilter) {
       return false;
     }
-    // Time filter
     if (timeFilter === 'today' && c.dateString !== todayStr) {
       return false;
     }
-    // Status filter
     if (statusFilter !== 'all' && c.status !== statusFilter) {
       return false;
     }
-    // Search filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchPhone = c.customerPhone.includes(q);
@@ -300,11 +293,10 @@ export default function AdminDashboardPage() {
               Owner Transparency Portal
             </h1>
             <p className="text-xs text-neutral-600 font-semibold mt-1">
-              Real-Time Call Logs, Lead Tracking &amp; Admin Routing
+              Real-Time Call Logs, Lead Tracking &amp; Partner Routing
             </p>
           </div>
 
-          {/* Tab selector */}
           <div className="flex border-2 border-black rounded-xl p-1 bg-neutral-100 mb-6">
             <button
               onClick={() => { setAuthMethod('pin'); setAuthError(''); }}
@@ -341,14 +333,14 @@ export default function AdminDashboardPage() {
                     type="password"
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
-                    placeholder="Enter PIN (e.g., 8220 or 7695)"
+                    placeholder="Enter PIN (e.g., 7695 or 8220)"
                     className="w-full px-4 py-3 text-lg font-black bg-neutral-50 border-2 border-black rounded-xl shadow-[3px_3px_0px_#000000] focus:outline-none focus:ring-2 focus:ring-brand-yellow tracking-widest text-center"
                     autoFocus
                   />
                   <Lock className="w-4 h-4 text-neutral-400 absolute right-3 top-4" />
                 </div>
                 <p className="text-[11px] text-neutral-500 font-bold mt-1 text-center">
-                  Admin 1 PIN: <strong>8220</strong> | Admin 2 PIN: <strong>7695</strong>
+                  Admin 1 PIN: <strong>7695</strong> | Admin 2 PIN: <strong>8220</strong>
                 </p>
               </div>
 
@@ -427,11 +419,11 @@ export default function AdminDashboardPage() {
                 </h1>
                 <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Sensor Live
+                  Sensors Active
                 </span>
               </div>
               <p className="text-[11px] text-neutral-300 font-medium">
-                Admin 1 (Stays: 82203 22008) &bull; Admin 2 (Rides: 76958 50762)
+                Admin 1 (Rides/Spices/2 Stays: <strong>76958 50762</strong>) &bull; Admin 2 (Honey/Food/2 Stays: <strong>82203 22008</strong>)
               </p>
             </div>
           </div>
@@ -479,7 +471,7 @@ export default function AdminDashboardPage() {
           <div className="bg-white p-5 rounded-3xl border-3 border-black shadow-[4px_4px_0px_#000000]">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black uppercase tracking-wider text-neutral-500">
-                Today&apos;s Total Calls
+                Today&apos;s Total Inquiries
               </span>
               <div className="w-9 h-9 rounded-xl bg-brand-yellow border-2 border-black flex items-center justify-center">
                 <PhoneCall className="w-4 h-4 text-black stroke-[2.5]" />
@@ -488,17 +480,21 @@ export default function AdminDashboardPage() {
             <div className="text-3xl sm:text-4xl font-black text-black mt-2">
               {stats.totalToday}
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-neutral-600 font-bold mt-2">
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{stats.totalAllTime} all-time calls recorded</span>
+            <div className="flex items-center gap-2 text-xs text-neutral-600 font-bold mt-2">
+              <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded border border-emerald-300">
+                📞 {stats.directCallsToday} Calls
+              </span>
+              <span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded border border-purple-300">
+                ⏱️ {stats.callbacksToday} Callbacks
+              </span>
             </div>
           </div>
 
-          {/* Admin 1 (Stays & Concierge) */}
+          {/* Admin 1 (76958 50762) */}
           <div className="bg-white p-5 rounded-3xl border-3 border-black shadow-[4px_4px_0px_#000000]">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black uppercase tracking-wider text-blue-700">
-                Admin 1 (Stays &amp; Cottages)
+                Admin 1 (Rides, Spices &amp; 2 Stays)
               </span>
               <div className="w-9 h-9 rounded-xl bg-blue-100 border-2 border-blue-900 flex items-center justify-center">
                 <Layers className="w-4 h-4 text-blue-900 stroke-[2.5]" />
@@ -507,16 +503,16 @@ export default function AdminDashboardPage() {
             <div className="text-3xl sm:text-4xl font-black text-black mt-2">
               {stats.admin1Today}
             </div>
-            <div className="text-xs font-bold text-neutral-600 mt-2">
-              Dialed: <strong>+91 82203 22008</strong>
+            <div className="text-xs font-bold text-neutral-700 mt-2">
+              Phone: <strong>+91 76958 50762</strong>
             </div>
           </div>
 
-          {/* Admin 2 (Rides & Logistics) */}
+          {/* Admin 2 (82203 22008) */}
           <div className="bg-white p-5 rounded-3xl border-3 border-black shadow-[4px_4px_0px_#000000]">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black uppercase tracking-wider text-amber-700">
-                Admin 2 (Rides &amp; Jeeps)
+                Admin 2 (Honey, Food &amp; 2 Stays)
               </span>
               <div className="w-9 h-9 rounded-xl bg-amber-100 border-2 border-amber-900 flex items-center justify-center">
                 <Sparkles className="w-4 h-4 text-amber-900 stroke-[2.5]" />
@@ -525,8 +521,8 @@ export default function AdminDashboardPage() {
             <div className="text-3xl sm:text-4xl font-black text-black mt-2">
               {stats.admin2Today}
             </div>
-            <div className="text-xs font-bold text-neutral-600 mt-2">
-              Dialed: <strong>+91 76958 50762</strong>
+            <div className="text-xs font-bold text-neutral-700 mt-2">
+              Phone: <strong>+91 82203 22008</strong>
             </div>
           </div>
 
@@ -534,7 +530,7 @@ export default function AdminDashboardPage() {
           <div className="bg-white p-5 rounded-3xl border-3 border-black shadow-[4px_4px_0px_#000000]">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black uppercase tracking-wider text-red-600">
-                Pending Callbacks
+                Pending Follow-Ups
               </span>
               <div className="w-9 h-9 rounded-xl bg-red-100 border-2 border-red-900 flex items-center justify-center">
                 <AlertCircle className="w-4 h-4 text-red-900 stroke-[2.5]" />
@@ -544,7 +540,7 @@ export default function AdminDashboardPage() {
               {stats.pendingToday}
             </div>
             <div className="text-xs font-bold text-neutral-600 mt-2">
-              Requires partner callback
+              Needs partner attendance
             </div>
           </div>
 
@@ -562,8 +558,8 @@ export default function AdminDashboardPage() {
               </span>
               {[
                 { id: 'all', label: 'All Partners' },
-                { id: 'admin1', label: 'Admin 1 (Stays - 82203)' },
-                { id: 'admin2', label: 'Admin 2 (Rides - 76958)' },
+                { id: 'admin1', label: 'Admin 1 (Rides/Spices - 76958)' },
+                { id: 'admin2', label: 'Admin 2 (Honey/Food - 82203)' },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -614,7 +610,7 @@ export default function AdminDashboardPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by customer phone number or purpose keyword..."
+                placeholder="Search by customer mobile, card name, or purpose..."
                 className="w-full pl-9 pr-4 py-2 text-xs font-bold bg-neutral-50 border-2 border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-yellow"
               />
             </div>
@@ -628,7 +624,7 @@ export default function AdminDashboardPage() {
                 className="px-3 py-2 text-xs font-black bg-neutral-100 border-2 border-black rounded-xl focus:outline-none"
               >
                 <option value="all">All Statuses</option>
-                <option value="New">🟡 New / Unanswered</option>
+                <option value="New">🟡 New / Pending</option>
                 <option value="Called Back">🟢 Called Back</option>
                 <option value="Converted">⭐ Converted / Booked</option>
                 <option value="No Answer">⚪ No Answer</option>
@@ -641,28 +637,29 @@ export default function AdminDashboardPage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-lg font-black uppercase text-black flex items-center gap-2">
-              <span>Customer Calls Log</span>
+              <span>Customer Inquiries Feed</span>
               <span className="text-xs font-black bg-neutral-200 px-2.5 py-0.5 rounded-full border border-neutral-400">
-                {filteredCalls.length} records
+                {filteredCalls.length} logs
               </span>
             </h2>
             <span className="text-xs text-neutral-500 font-semibold">
-              Showing newest first &bull; Click to Call Back
+              Live Click Sensors &bull; 1-Click Call Back
             </span>
           </div>
 
           {filteredCalls.length === 0 ? (
             <div className="bg-white rounded-3xl p-12 text-center border-3 border-black shadow-[4px_4px_0px_#000000]">
               <Phone className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
-              <h3 className="text-lg font-black text-neutral-800">No calls found</h3>
+              <h3 className="text-lg font-black text-neutral-800">No inquiry logs found</h3>
               <p className="text-xs text-neutral-500 font-medium mt-1">
-                No customer call events match your current filter criteria.
+                No customer calls match your selected filter criteria.
               </p>
             </div>
           ) : (
             filteredCalls.map((call) => {
               const isAdmin1 = call.assignedAdmin === 'admin1';
               const isToday = call.dateString === todayStr;
+              const isCallback = call.actionType === 'Callback Request';
 
               return (
                 <div
@@ -676,7 +673,18 @@ export default function AdminDashboardPage() {
                     {/* Left: Customer Info & Timing */}
                     <div>
                       <div className="flex flex-wrap items-center gap-2 mb-2">
-                        {/* Admin Badge */}
+                        {/* Action Type Badge: Direct Call vs Callback */}
+                        <span
+                          className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border ${
+                            isCallback
+                              ? 'bg-purple-100 text-purple-900 border-purple-400'
+                              : 'bg-emerald-100 text-emerald-900 border-emerald-400'
+                          }`}
+                        >
+                          {isCallback ? '⏱️ Callback Request' : '📞 Direct Call'}
+                        </span>
+
+                        {/* Routed Partner Badge */}
                         <span
                           className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border ${
                             isAdmin1
@@ -684,7 +692,7 @@ export default function AdminDashboardPage() {
                               : 'bg-amber-100 text-amber-900 border-amber-400'
                           }`}
                         >
-                          {isAdmin1 ? 'Admin 1 (Stays)' : 'Admin 2 (Rides)'} &bull; {call.destinationPhone}
+                          {isAdmin1 ? 'Admin 1 (76958 50762)' : 'Admin 2 (82203 22008)'}
                         </span>
 
                         {/* Status Badge */}
@@ -702,7 +710,7 @@ export default function AdminDashboardPage() {
                           {call.status}
                         </span>
 
-                        {/* Time */}
+                        {/* Timestamp */}
                         <span className="text-[11px] font-bold text-neutral-500 flex items-center gap-1">
                           <Clock className="w-3.5 h-3.5" />
                           {new Date(call.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -721,7 +729,7 @@ export default function AdminDashboardPage() {
                       {/* Sensor & Predicted Purpose Box */}
                       <div className="mt-3 bg-[#FAF6EE] p-3 rounded-2xl border-2 border-neutral-300 space-y-1">
                         <div className="flex items-center gap-1.5 text-xs font-black text-neutral-700">
-                          <span className="text-brand-orange font-black">📍 Sensor Click Location:</span>
+                          <span className="text-brand-orange font-black">📍 Click Sensor Location:</span>
                           <span className="text-black bg-white px-2 py-0.5 rounded border border-neutral-300 font-bold">
                             {call.cardTitle}
                           </span>
@@ -734,10 +742,10 @@ export default function AdminDashboardPage() {
                         </div>
                       </div>
 
-                      {/* Note display / edit */}
+                      {/* Notes Section */}
                       {call.notes && noteEditId !== call.id && (
                         <div className="mt-2 text-xs text-neutral-600 bg-neutral-50 p-2 rounded-xl border border-neutral-200">
-                          <strong>Admin Note:</strong> {call.notes}
+                          <strong>Partner Note:</strong> {call.notes}
                         </div>
                       )}
 
@@ -747,7 +755,7 @@ export default function AdminDashboardPage() {
                             type="text"
                             value={noteText}
                             onChange={(e) => setNoteText(e.target.value)}
-                            placeholder="Add note (e.g. Quoted ₹3000 for 4 pax)..."
+                            placeholder="Add note (e.g., Quoted ₹3000 for 4 pax)..."
                             className="flex-1 px-3 py-1.5 text-xs font-bold border-2 border-black rounded-xl"
                             autoFocus
                           />
@@ -775,7 +783,7 @@ export default function AdminDashboardPage() {
 
                     </div>
 
-                    {/* Right: Quick Action Buttons for Owners */}
+                    {/* Right: Quick Action Buttons for Partners */}
                     <div className="flex flex-row lg:flex-col items-center gap-2 shrink-0 pt-3 lg:pt-0 border-t-2 lg:border-t-0 border-neutral-200">
                       
                       {/* Call Customer Back */}

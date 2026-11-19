@@ -10,6 +10,7 @@ export interface Stay {
   capacity: string;
   category: 'valley' | 'estate' | 'couple' | 'budget';
   location: string;
+  assignedAdmin: 'admin1' | 'admin2';
 }
 
 export const STAYS_DATA: Stay[] = [
@@ -25,6 +26,7 @@ export const STAYS_DATA: Stay[] = [
     capacity: 'Up to 10-12 Guests',
     category: 'valley',
     location: 'Near Lady’s Seat Cliff, Yercaud',
+    assignedAdmin: 'admin1',
   },
   {
     id: 'arabica-estate-cabin',
@@ -38,6 +40,7 @@ export const STAYS_DATA: Stay[] = [
     capacity: '2 to 6 Guests',
     category: 'estate',
     location: 'Grange Estate Road, Yercaud',
+    assignedAdmin: 'admin1',
   },
   {
     id: 'tipperary-sunset-suite',
@@ -51,6 +54,7 @@ export const STAYS_DATA: Stay[] = [
     capacity: '2 Guests',
     category: 'couple',
     location: 'Tipperary Viewpoint Ridge, Yercaud',
+    assignedAdmin: 'admin2',
   },
   {
     id: 'emerald-lakeview-rooms',
@@ -64,5 +68,6 @@ export const STAYS_DATA: Stay[] = [
     capacity: '2 to 4 Guests',
     category: 'budget',
     location: 'Town Centre, Lake Road, Yercaud',
+    assignedAdmin: 'admin2',
   },
 ];

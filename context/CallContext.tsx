@@ -42,14 +42,17 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
       pageUrl: options?.pageUrl || currentUrl,
     });
 
+    const selectedAdmin = options?.assignedAdmin || prediction.assignedAdmin;
+    const adminObj = ADMINS[selectedAdmin] || ADMINS.admin1;
+
     setActiveIntent({
       serviceCategory: prediction.serviceCategory,
       cardTitle: options?.cardTitle || 'Direct Line',
       predictedPurpose: options?.predictedPurpose || prediction.predictedPurpose,
-      assignedAdmin: options?.assignedAdmin || prediction.assignedAdmin,
-      adminName: prediction.adminName,
-      destinationPhone: options?.targetPhone || prediction.destinationPhone,
-      destinationPhoneDisplay: prediction.destinationPhoneDisplay,
+      assignedAdmin: selectedAdmin,
+      adminName: adminObj.name,
+      destinationPhone: options?.targetPhone || adminObj.phone,
+      destinationPhoneDisplay: adminObj.phoneDisplay,
       pageUrl: options?.pageUrl || currentUrl,
     });
 

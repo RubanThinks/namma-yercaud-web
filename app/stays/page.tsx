@@ -107,7 +107,7 @@ export default function StaysPage() {
                   data-call-trigger="true"
                   data-service="Stays & Cottages"
                   data-title={stay.name}
-                  data-admin="admin1"
+                  data-admin={stay.assignedAdmin}
                   className="flex-1 py-3 text-center rounded-xl btn-solid-yellow text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Phone className="w-4 h-4 stroke-[2.5]" />

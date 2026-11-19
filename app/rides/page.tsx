@@ -87,7 +87,7 @@ export default function RidesPage() {
                   data-call-trigger="true"
                   data-service="Rides & Jeep Safari"
                   data-title={jeep.name}
-                  data-admin="admin2"
+                  data-admin="admin1"
                   className="flex-1 py-3 text-center rounded-xl btn-solid-yellow text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Phone className="w-4 h-4 stroke-[2.5]" />
@@ -141,7 +141,7 @@ export default function RidesPage() {
                 data-call-trigger="true"
                 data-service="Rides & Cabs"
                 data-title="Salem Junction to Yercaud Cab"
-                data-admin="admin2"
+                data-admin="admin1"
                 className="flex-1 py-2.5 rounded-xl btn-solid-yellow text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer text-center"
               >
                 <Phone className="w-3.5 h-3.5 stroke-[2.5]" />

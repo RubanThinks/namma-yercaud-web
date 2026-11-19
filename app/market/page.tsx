@@ -76,7 +76,7 @@ export default function MarketPage() {
                   data-call-trigger="true"
                   data-service="Market & Spices"
                   data-title={product.name}
-                  data-admin="admin2"
+                  data-admin={product.category === 'Honey' ? 'admin2' : 'admin1'}
                   className="flex-1 py-2.5 text-center rounded-xl btn-solid-yellow text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Phone className="w-3.5 h-3.5 stroke-[2.5]" />
